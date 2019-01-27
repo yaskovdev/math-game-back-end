@@ -15,3 +15,7 @@ Implement the game server using node.js/io.js. It is recommended to use Angular 
 Use GitHub for version control.
 
 Make it as you would do it for production with all the relevant aspects.
+
+## Local Deployment
+
+Run `node ./index.js`.
