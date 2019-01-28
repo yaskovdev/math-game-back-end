@@ -2,6 +2,8 @@ const http = require('http');
 const WebSocketServer = require('websocket').server;
 const uuid = require('uuid/v1');
 
+const Challenge = require('./challenge');
+
 const server = http.createServer((request, response) => {
     response.writeHead(200);
     response.end('Welcome to Math Game!');
@@ -35,7 +37,7 @@ webSocketServer.on('request', request => {
     const connection = request.accept(null, request.origin);
     const id = uuid();
 
-    const user = { id, connection, name: generateName(), score: 0, answer: null, timeOfAnswer: null};
+    const user = {id, connection, name: generateName(), score: 0, answer: null, timeOfAnswer: null};
     users[id] = user;
 
     connection.sendUTF(JSON.stringify({
@@ -98,14 +100,12 @@ setInterval(() => {
             }));
         });
     } else {
-        const a = Math.floor(Math.random() * 10);
-        const b = Math.floor(Math.random() * 10);
-        challenge = {question: `${a} + ${b}`, answer: a + b, correctAnswer: a + b};
+        challenge = Challenge().next().value;
         Object.keys(users).forEach(id => {
             const {connection, score} = users[id];
             connection.sendUTF(JSON.stringify({
                 type: 'START_ROUND',
-                challenge: {question: challenge.question, answer: challenge.answer},
+                challenge,
                 numberOfUsers: Object.keys(users).length
             }));
         });
