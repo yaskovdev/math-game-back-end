@@ -1,0 +1,7 @@
+{
+  "name": "math-game-back-end",
+  "version": "1.0.0",
+  "dependencies": {
+    "websocket": "^1.0.28"
+  }
+}
