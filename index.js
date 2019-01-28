@@ -104,8 +104,7 @@ setInterval(() => {
             const {connection, score} = users[id];
             connection.sendUTF(JSON.stringify({
                 type: 'START_ROUND',
-                challenge,
-                numberOfUsers: Object.keys(users).length
+                challenge
             }));
         });
     }
