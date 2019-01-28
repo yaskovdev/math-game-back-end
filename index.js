@@ -35,12 +35,13 @@ webSocketServer.on('request', request => {
     const connection = request.accept(null, request.origin);
     const id = uuid();
 
-    const user = {connection, score: 0, answer: null, timeOfAnswer: null};
+    const user = { id, connection, name: generateName(), score: 0, answer: null, timeOfAnswer: null};
     users[id] = user;
 
     connection.sendUTF(JSON.stringify({
         type: 'WELCOME',
-        user: {id, name: generateName()}
+        user: {id, name: user.name},
+        ratingTable: ratingTableOf(users)
     }));
 
     connection.on('message', message => {
@@ -66,10 +67,15 @@ const challengeResult = (userGaveAnswer, userWasRight) => {
     }
 };
 
+const ratingTableOf = (users) =>
+    Object.values(users)
+        .map(user => ({id: user.id, name: user.name, score: user.score}))
+        .sort((a, b) => b.score - a.score);
+
 setInterval(() => {
     if (challenge) {
         Object.keys(users).forEach(id => {
-            const {connection, score, answer, timeOfAnswer} = users[id];
+            const {score, answer, timeOfAnswer} = users[id];
             const userGaveAnswer = answer !== null;
             const userWasRight = answer === (challenge.answer === challenge.correctAnswer);
             if (userGaveAnswer) {
@@ -77,13 +83,20 @@ setInterval(() => {
             }
             users[id].answer = null;
             users[id].timeOfAnswer = null;
+            users[id].result = challengeResult(userGaveAnswer, userWasRight);
+        });
+        challenge = null;
+
+        const ratingTable = ratingTableOf(users);
+        Object.keys(users).forEach(id => {
+            const {connection} = users[id];
             connection.sendUTF(JSON.stringify({
                 type: 'END_ROUND',
                 score: users[id].score,
-                result: challengeResult(userGaveAnswer, userWasRight)
+                result: users[id].result,
+                ratingTable
             }));
         });
-        challenge = null;
     } else {
         const a = Math.floor(Math.random() * 10);
         const b = Math.floor(Math.random() * 10);
