@@ -1,4 +1,6 @@
-const OPERANDS = ['*', '/', '+', '-'];
+const random = require('./random');
+
+const OPERATORS = ['*', '/', '+', '-'];
 
 const gcd = (a, b) => b ? gcd(b, a % b) : a;
 
@@ -21,18 +23,15 @@ const calculate = (leftOperand, rightOperand, operator) => {
 
 module.exports = function* ChallengeGenerator() {
     while (true) {
-        const leftOperand = Math.floor(Math.random() * 10) + 1;
-        const rightOperand = Math.floor(Math.random() * 10) + 1;
-        const operator = OPERANDS[Math.floor(Math.random() * 4)];
-        const wrongOperator = OPERANDS[Math.floor(Math.random() * 4)];
-
-        const correctAnswer = calculate(leftOperand, rightOperand, operator);
-        const wrongAnswer = calculate(leftOperand, rightOperand, wrongOperator);
+        const leftOperand = random.generate(10) + 1;
+        const rightOperand = random.generate(10) + 1;
+        const operator = random.pick(OPERATORS);
+        const wrongOperator = random.pick(OPERATORS);
 
         yield {
             question: `${leftOperand} ${operator} ${rightOperand}`,
-            answer: wrongAnswer,
-            correctAnswer
+            answer: calculate(leftOperand, rightOperand, wrongOperator),
+            correctAnswer: calculate(leftOperand, rightOperand, operator)
         };
     }
 };

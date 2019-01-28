@@ -2,6 +2,7 @@ const http = require('http');
 const WebSocketServer = require('websocket').server;
 const uuid = require('uuid/v1');
 
+const random = require('./random');
 const Challenge = require('./challenge');
 
 const server = http.createServer((request, response) => {
@@ -28,9 +29,7 @@ const generateName = () => {
         'Useful', 'Vulgar', 'Wise'];
     const nouns = ['Dog', 'Cat', 'Cow', 'Sheep', 'Rabbit', 'Duck', 'Hen', 'Horse', 'Pig', 'Turkey', 'Chicken', 'Donkey',
         'Goat', 'Zebra', 'Lama', 'Squirrel', 'Snail', 'Mouse', 'Chameleon', 'Deer', 'Raccoon', 'Beaver', 'Mole'];
-    const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
-    const noun = nouns[Math.floor(Math.random() * nouns.length)];
-    return adjective + ' ' + noun;
+    return random.pick(adjectives) + ' ' + random.pick(nouns);
 };
 
 webSocketServer.on('request', request => {
