@@ -4,20 +4,12 @@ const uuid = require('uuid/v1');
 
 const random = require('./random');
 const Challenge = require('./challenge');
+const resultsService = require('./resultsService');
 
-const server = http.createServer((request, response) => {
-    response.writeHead(200);
-    response.end('Welcome to Math Game!');
+const httpServer = http.createServer((request, response) => {
 });
 
-const CHALLENGE_RESULT = {
-    CORRECT_FIRST_ANSWER: 'CORRECT_FIRST_ANSWER',
-    CORRECT_LATE_ANSWER: 'CORRECT_LATE_ANSWER',
-    WRONG_ANSWER: 'WRONG_ANSWER',
-    NO_ANSWER: 'NO_ANSWER'
-};
-
-const webSocketServer = new WebSocketServer({httpServer: server});
+const webSocketServer = new WebSocketServer({httpServer});
 
 let challenge = null;
 
@@ -60,31 +52,22 @@ webSocketServer.on('request', request => {
     });
 });
 
-const challengeResult = (userGaveAnswer, userWasRight) => {
-    if (userGaveAnswer) {
-        return userWasRight ? CHALLENGE_RESULT.CORRECT_FIRST_ANSWER : CHALLENGE_RESULT.WRONG_ANSWER;
-    } else {
-        return CHALLENGE_RESULT.NO_ANSWER;
-    }
+const values = (object) => {
+    return Object.keys(object).map(key => object[key]);
 };
 
 const ratingTableOf = (users) =>
-    Object.values(users)
-        .map(user => ({id: user.id, name: user.name, score: user.score}))
-        .sort((a, b) => b.score - a.score);
+    values(users).map(user => ({id: user.id, name: user.name, score: user.score})).sort((a, b) => b.score - a.score);
 
 setInterval(() => {
     if (challenge) {
+        const results = resultsService.roundResults(values(users), challenge);
         Object.keys(users).forEach(id => {
-            const {score, answer, timeOfAnswer} = users[id];
-            const userGaveAnswer = answer !== null;
-            const userWasRight = answer === (challenge.answer === challenge.correctAnswer);
-            if (userGaveAnswer) {
-                users[id].score = userWasRight ? score + 1 : score - 1;
-            }
+            const {score} = users[id];
+            users[id].score = score + resultsService.userScoreDelta(id, results);
             users[id].answer = null;
             users[id].timeOfAnswer = null;
-            users[id].result = challengeResult(userGaveAnswer, userWasRight);
+            users[id].result = resultsService.roundResultsToSummary(id, results);
         });
         challenge = null;
 
@@ -110,6 +93,6 @@ setInterval(() => {
     }
 }, 5000);
 
-server.listen(8080);
+httpServer.listen(8080);
 
 console.log('Server started');

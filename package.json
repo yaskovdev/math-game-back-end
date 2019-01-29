@@ -4,5 +4,11 @@
   "dependencies": {
     "uuid": "3.3.2",
     "websocket": "1.0.28"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "devDependencies": {
+    "mocha": "5.2.0"
   }
 }
