@@ -7,6 +7,8 @@ const Challenge = require('./challenge');
 const resultsService = require('./resultsService');
 
 const httpServer = http.createServer((request, response) => {
+    response.writeHead(200);
+    response.end('Math Game server is running');
 });
 
 const webSocketServer = new WebSocketServer({httpServer});
