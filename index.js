@@ -22,28 +22,33 @@ const send = (connection, object) => {
 	connection.sendUTF(JSON.stringify(object));
 };
 
-webSocketServer.on('request', request => {
-	const connection = request.accept(null, request.origin);
-	const user = usersService.registerUser(connection);
-	bind(user, connection);
+webSocketServer.on('request', (request) => {
+	if (usersService.thereAreEnoughFreeSlots()) {
+		const connection = request.accept(null, request.origin);
+		const user = usersService.registerUser(connection);
+		bind(user, connection);
 
-	send(connection, {
-		type: 'WELCOME',
-		user: usersService.getUserInfo(connection.id),
-		ratingTable: usersService.ratingTable()
-	});
+		send(connection, {
+			type: 'WELCOME',
+			user: usersService.getUserInfo(connection.id),
+			ratingTable: usersService.ratingTable()
+		});
 
-	connection.on('message', message => {
-		if (message.type === 'utf8') {
-			console.log('Message received', message);
-			const { utf8Data } = message;
-			usersService.registerAnswer(connection.id, utf8Data.trim() === 'true');
-		}
-	});
+		connection.on('message', message => {
+			if (message.type === 'utf8') {
+				console.log('Message received', message);
+				const { utf8Data } = message;
+				usersService.registerAnswer(connection.id, utf8Data.trim() === 'true');
+			}
+		});
 
-	connection.on('close', () => {
-		usersService.unregisterUser(connection.id);
-	});
+		connection.on('close', () => {
+			usersService.unregisterUser(connection.id);
+		});
+	} else {
+		console.error('Maximum amount of connections is reached');
+		request.reject();
+	}
 });
 
 setInterval(() => {

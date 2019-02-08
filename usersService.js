@@ -3,6 +3,8 @@ const random = require('./random');
 const values = require('./values');
 const resultsService = require('./resultsService');
 
+const USERS_LIMIT = 10;
+
 const users = {};
 
 const generateName = () => {
@@ -15,6 +17,10 @@ const generateName = () => {
 };
 
 module.exports = {
+	thereAreEnoughFreeSlots: () => {
+		return Object.keys(users).length < USERS_LIMIT;
+	},
+
 	registerUser: (connection) => {
 		const id = uuid();
 		const user = { id, connection, name: generateName(), score: 0, answer: null, timeOfAnswer: null };
