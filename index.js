@@ -1,9 +1,9 @@
 const http = require('http');
 const WebSocketServer = require('websocket').server;
 
-const Challenge = require('./challenge');
 const resultsService = require('./resultsService');
 const usersService = require('./usersService');
+const challengeService = require('./challengeService');
 
 const httpServer = http.createServer((request, response) => {
 	response.writeHead(200);
@@ -11,8 +11,6 @@ const httpServer = http.createServer((request, response) => {
 });
 
 const webSocketServer = new WebSocketServer({ httpServer });
-
-let challenge = null;
 
 const bind = (user, connection) => {
 	connection.id = user.id;
@@ -34,7 +32,7 @@ webSocketServer.on('request', (request) => {
 			ratingTable: usersService.ratingTable()
 		});
 
-		connection.on('message', message => {
+		connection.on('message', (message) => {
 			if (message.type === 'utf8') {
 				console.log('Message received', message);
 				const { utf8Data } = message;
@@ -52,10 +50,10 @@ webSocketServer.on('request', (request) => {
 });
 
 setInterval(() => {
-	if (challenge) {
-		const results = resultsService.roundResults(usersService.allUserAnswers(challenge));
+	if (challengeService.isChallengeInProgress()) {
+		const results = resultsService.roundResults(usersService.allUserAnswers(challengeService.isSuggestedAnswerCorrect()));
 		usersService.finishRoundWithResults(results);
-		challenge = null;
+		challengeService.finishCurrentChallenge();
 
 		const ratingTable = usersService.ratingTable();
 		usersService.allUserConnectionsAsList().forEach((connection) => {
@@ -64,12 +62,12 @@ setInterval(() => {
 			send(connection, { type: 'END_ROUND', score, result, ratingTable });
 		});
 	} else {
-		challenge = Challenge().next().value;
+		const challenge = challengeService.startNewChallenge();
 		usersService.allUserConnectionsAsList().forEach((connection) => {
 			send(connection, { type: 'START_ROUND', challenge });
 		});
 	}
-}, 5000);
+}, 2000);
 
 httpServer.listen(8080);
 

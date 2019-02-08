@@ -49,18 +49,16 @@ module.exports = {
 		.map(user => ({ id: user.id, name: user.name, score: user.score }))
 		.sort((a, b) => b.score - a.score),
 
-	allUserAnswers: (challenge) =>
+	allUserAnswers: (suggestedAnswerCorrect) =>
 		values.of(users).map(user => ({
 			id: user.id,
 			answer: user.answer,
 			timeOfAnswer: user.timeOfAnswer,
 			userGaveAnswer: user.answer !== null,
-			userWasRight: user.answer === (challenge.answer === challenge.correctAnswer)
+			userWasRight: user.answer === suggestedAnswerCorrect
 		})).sort((a, b) => a.timeOfAnswer - b.timeOfAnswer),
 
-	allUserConnectionsAsList: () => {
-		return values.of(users).map(user => user.connection);
-	},
+	allUserConnectionsAsList: () => values.of(users).map(user => user.connection),
 
 	finishRoundWithResults: (results) => {
 		Object.keys(users).forEach(id => {
