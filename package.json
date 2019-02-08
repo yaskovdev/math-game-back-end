@@ -9,6 +9,7 @@
     "test": "mocha"
   },
   "devDependencies": {
+    "eslint": "5.13.0",
     "mocha": "5.2.0"
   }
 }
