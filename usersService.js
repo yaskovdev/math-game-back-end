@@ -1,7 +1,6 @@
 const uuid = require('uuid/v1');
 const random = require('./random');
 const values = require('./values');
-const resultsService = require('./resultsService');
 
 const USERS_LIMIT = 10;
 
@@ -36,42 +35,19 @@ module.exports = {
 
 	getUserInfo: (id) => {
 		const user = users[id];
-		return { id: user.id, name: user.name };
+		return { id: user.id, name: user.name, score: user.score };
 	},
 
-	registerAnswer: (id, answer) => {
-		const user = users[id];
-		user.answer = answer;
-		user.timeOfAnswer = Date.now();
+	updateUsersScores: (userIdToScoreDeltaAndResult) => {
+		values.of(users).forEach((user) => {
+			const { scoreDelta } = userIdToScoreDeltaAndResult[user.id];
+			user.score = user.score + scoreDelta;
+		})
 	},
 
 	ratingTable: () => values.of(users)
 		.map(user => ({ id: user.id, name: user.name, score: user.score }))
 		.sort((a, b) => b.score - a.score),
 
-	allUserAnswers: (suggestedAnswerCorrect) =>
-		values.of(users).map(user => ({
-			id: user.id,
-			answer: user.answer,
-			timeOfAnswer: user.timeOfAnswer,
-			userGaveAnswer: user.answer !== null,
-			userWasRight: user.answer === suggestedAnswerCorrect
-		})).sort((a, b) => a.timeOfAnswer - b.timeOfAnswer),
-
-	allUserConnectionsAsList: () => values.of(users).map(user => user.connection),
-
-	finishRoundWithResults: (results) => {
-		Object.keys(users).forEach(id => {
-			const { score } = users[id];
-			users[id].score = score + resultsService.userScoreDelta(id, results);
-			users[id].answer = null;
-			users[id].timeOfAnswer = null;
-			users[id].result = resultsService.roundResultsToSummary(id, results);
-		});
-	},
-
-	roundScoreAndResultOfUser: (id) => {
-		const user = users[id];
-		return { score: user.score, result: user.result };
-	}
+	allUserConnectionsAsList: () => values.of(users).map(user => user.connection)
 };

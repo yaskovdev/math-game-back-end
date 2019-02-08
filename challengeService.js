@@ -1,12 +1,12 @@
 const random = require('./random');
+const resultsService = require('./resultsService');
 
 const OPERATORS = ['*', '/', '+', '-'];
 
 const gcd = (a, b) => b ? gcd(b, a % b) : a;
 
 let challenge = null;
-
-const answers = {};
+let userIdToAnswer = {};
 
 const calculate = (leftOperand, rightOperand, operator) => {
 	if (operator === '*') {
@@ -40,17 +40,39 @@ function* ChallengeGenerator() {
 	}
 }
 
+const isSuggestedAnswerCorrect = () => challenge.answer === challenge.correctAnswer;
+
 module.exports = {
 	isChallengeInProgress: () => Boolean(challenge),
-
-	isSuggestedAnswerCorrect: () => challenge.answer === challenge.correctAnswer,
 
 	startNewChallenge: () => {
 		challenge = ChallengeGenerator().next().value;
 		return challenge;
 	},
 
-	finishCurrentChallenge: () => {
+	finishCurrentChallenge: (results) => {
+		const userIdToScoreDeltaAndResult = {};
+		Object.keys(userIdToAnswer).forEach(userId => {
+			userIdToScoreDeltaAndResult[userId] = {
+				scoreDelta: resultsService.userScoreDelta(userId, results),
+				result: resultsService.roundResultsToSummary(userId, results)
+			};
+		});
+		userIdToAnswer = {};
 		challenge = null;
-	}
+		return userIdToScoreDeltaAndResult;
+	},
+
+	registerUserAnswer: (userId, answer) => {
+		userIdToAnswer[userId] = { userId, answer, timeOfAnswer: Date.now() };
+	},
+
+	allUserAnswers: () =>
+		values.of(userIdToAnswer).map(a => ({
+			id: a.userId,
+			answer: a.answer,
+			timeOfAnswer: a.timeOfAnswer,
+			userGaveAnswer: a.answer !== null,
+			userWasRight: a.answer === isSuggestedAnswerCorrect()
+		})).sort((a, b) => a.timeOfAnswer - b.timeOfAnswer)
 };

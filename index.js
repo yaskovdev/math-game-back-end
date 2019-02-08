@@ -36,7 +36,7 @@ webSocketServer.on('request', (request) => {
 			if (message.type === 'utf8') {
 				console.log('Message received', message);
 				const { utf8Data } = message;
-				usersService.registerAnswer(connection.id, utf8Data.trim() === 'true');
+				challengeService.registerUserAnswer(connection.id, utf8Data.trim() === 'true');
 			}
 		});
 
@@ -51,14 +51,15 @@ webSocketServer.on('request', (request) => {
 
 setInterval(() => {
 	if (challengeService.isChallengeInProgress()) {
-		const results = resultsService.roundResults(usersService.allUserAnswers(challengeService.isSuggestedAnswerCorrect()));
-		usersService.finishRoundWithResults(results);
-		challengeService.finishCurrentChallenge();
+		const results = resultsService.roundResults(challengeService.allUserAnswers());
+		const userIdToScoreDeltaAndResult = challengeService.finishCurrentChallenge(results);
+		usersService.updateUsersScores(userIdToScoreDeltaAndResult);
 
 		const ratingTable = usersService.ratingTable();
 		usersService.allUserConnectionsAsList().forEach((connection) => {
 			const { id } = connection;
-			const { score, result } = usersService.roundScoreAndResultOfUser(id);
+			const { score } = usersService.getUserInfo(id);
+			const { result } = userIdToScoreDeltaAndResult[id];
 			send(connection, { type: 'END_ROUND', score, result, ratingTable });
 		});
 	} else {
