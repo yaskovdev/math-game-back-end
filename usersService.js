@@ -20,7 +20,7 @@ module.exports = {
 
     registerUser: (connection) => {
         const id = uuid();
-        const user = {id, connection, name: generateName(), score: 0, answer: null, timeOfAnswer: null};
+        const user = {id, connection, name: generateName(), score: 0};
         users[id] = user;
         console.log('User ' + id + " joined the game");
         return user;

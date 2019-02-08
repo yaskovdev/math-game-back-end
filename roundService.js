@@ -32,11 +32,12 @@ function* ChallengeGenerator() {
         const leftOperand = random.generate(10) + 1;
         const rightOperand = random.generate(10) + 1;
         const operator = random.pick(OPERATORS);
-        const wrongOperator = random.generate(2) ? operator : random.pick(OPERATORS.filter(o => o !== operator));
+        const suggestWrongAnswer = random.generate(2);
+        const wrongOperator = suggestWrongAnswer ? random.pick(OPERATORS.filter(o => o !== operator)) : operator;
 
         yield {
             question: `${leftOperand} ${operator} ${rightOperand}`,
-            answer: calculate(leftOperand, rightOperand, wrongOperator),
+            suggestedAnswer: calculate(leftOperand, rightOperand, wrongOperator),
             correctAnswer: calculate(leftOperand, rightOperand, operator)
         };
     }
@@ -47,7 +48,7 @@ module.exports = {
 
     startNewRound: () => {
         round.challenge = ChallengeGenerator().next().value;
-        return {question: round.challenge.question, answer: round.challenge.answer};
+        return {question: round.challenge.question, suggestedAnswer: round.challenge.suggestedAnswer};
     },
 
     finishCurrentRound: () => {
@@ -63,7 +64,7 @@ module.exports = {
         return userIdToScoreDeltaAndRoundSummary;
     },
 
-    registerUserAnswer: (userId, answer) => {
-        round.userIdToAnswer[userId] = {userId, answer, timeOfAnswer: Date.now()};
+    registerUserAnswer: (userId, userAnswer) => {
+        round.userIdToAnswer[userId] = {userId, userAnswer, timeOfAnswer: Date.now()};
     }
 };

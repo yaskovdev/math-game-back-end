@@ -6,19 +6,19 @@ const CHALLENGE_RESULT = {
     WRONG_ANSWER: 'WRONG_ANSWER'
 };
 
-const allUserAnswers = (round) => {
-    const suggestedAnswerCorrect = round.challenge.answer === round.challenge.correctAnswer;
+const usersRatingAfter = (round) => {
+    const {challenge} = round;
+    const suggestedAnswerCorrect = challenge.suggestedAnswer === challenge.correctAnswer;
     return values.of(round.userIdToAnswer).map(a => ({
         id: a.userId,
-        answer: a.answer,
         timeOfAnswer: a.timeOfAnswer,
-        userGaveAnswer: a.answer !== null,
-        userWasRight: a.answer === suggestedAnswerCorrect
+        userGaveAnswer: a.userAnswer !== null,
+        userWasRight: a.userAnswer === suggestedAnswerCorrect
     })).sort((a, b) => a.timeOfAnswer - b.timeOfAnswer);
 };
 
 const resultsOf = (round) => {
-    const fastestUsersFirst = allUserAnswers(round);
+    const fastestUsersFirst = usersRatingAfter(round);
     const winner = fastestUsersFirst.filter(answer => answer.userGaveAnswer && answer.userWasRight)[0];
     const losers = fastestUsersFirst.filter(answer => answer.userGaveAnswer && !answer.userWasRight);
     const winnerId = winner ? winner.id : null;
