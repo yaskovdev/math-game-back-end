@@ -2,7 +2,7 @@ const assert = require('assert')
 const arbiterService = require('./arbiterService')
 
 const challenge = () => ({ suggestedAnswer: 3, correctAnswer: 4 })
-const userAnswer = (userId, value, timeOfAnswer) => ({ userId, answer: value, timeOfAnswer })
+const userAnswer = (userId, value, timeOfAnswer) => ({ userId, userAnswer: value, timeOfAnswer })
 
 describe('arbiterService', () => {
     describe('roundSummary', () => {

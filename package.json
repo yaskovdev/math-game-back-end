@@ -6,7 +6,7 @@
     "websocket": "1.0.28"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha \"./{,!(node_modules)/**/}*.spec.js\""
   },
   "devDependencies": {
     "eslint": "5.13.0",
