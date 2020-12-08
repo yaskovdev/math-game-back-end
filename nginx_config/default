@@ -11,6 +11,7 @@
 # Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
 ##
 
+#
 # Default server configuration
 #
 server {
@@ -32,7 +33,6 @@ server {
 }
 
 server {
-
 	root /var/www/html;
 
 	# Add index.php to the list if you are using PHP
@@ -78,7 +78,6 @@ server {
 }
 
 server {
-
     server_name mock.yaskovdev.com;
 
     location / {
@@ -92,7 +91,6 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/mock.yaskovdev.com/privkey.pem; # managed by Certbot
     include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
-
 }
 
 server {
