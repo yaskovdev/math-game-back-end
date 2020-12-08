@@ -4,18 +4,18 @@ const roundService = require('./roundService')
 describe('roundService', () => {
     describe('isRoundInProgress', () => {
         it('should return false if the round has not yet been started', () => {
-            assert.equal(roundService.isRoundInProgress(), false)
+            assert.strictEqual(roundService.isRoundInProgress(), false)
         })
 
         it('should return true if the round has been started', () => {
             roundService.startNewRound()
-            assert.equal(roundService.isRoundInProgress(), true)
+            assert.strictEqual(roundService.isRoundInProgress(), true)
         })
 
         it('should return false if the round has been started and then finished', () => {
             roundService.startNewRound()
             roundService.finishCurrentRound()
-            assert.equal(roundService.isRoundInProgress(), false)
+            assert.strictEqual(roundService.isRoundInProgress(), false)
         })
     })
 
